@@ -27,7 +27,7 @@ func ParseName(name string) []Person {
 			singleNames := strings.Split(name, splitter)
 			sharedSurname := ""
 			var tempPersons []Person
-			//Start from the end to catch the possible surname from n+1 person
+			//Start from the end to catch the possible surname from the last person
 			for i := len(singleNames) - 1; i >= 0; i-- {
 				//Check if the first person has a lastname, if not assign the second person's last name
 				wordCountInName := len(strings.Split(singleNames[i], " "))
@@ -47,8 +47,10 @@ func ParseName(name string) []Person {
 		}
 	}
 
-	// Processing a single homeowner
+	// Processing a single homeowner starting with title
 	for _, title := range titles {
+
+		//Check if the name has the exact title at the start (better than contains which can get "Mr" within "Mrs")
 		if strings.HasPrefix(name, title+" ") {
 			var person Person
 			person.Title = title
@@ -70,22 +72,29 @@ func ParseName(name string) []Person {
 				if len(splits) > 1 {
 					person.LastName = strings.TrimSpace(splits[1])
 				}
+				person.FirstName = "N/A"
 			} else {
 				splits := strings.Fields(name)
 				if len(splits) > 0 {
 					switch len(splits) {
+					//Only lastname
 					case 1:
+						person.Initial = "N/A"
+						person.FirstName = "N/A"
 						person.LastName = splits[0]
+					//Initial or firstname with lastname
 					case 2:
-						//Check if the first element is one letter aka initial only
+						//Check if the first word is one letter aka initial only
 						if len(splits[0]) == 1 {
 							person.Initial = splits[0]
+							person.FirstName = "N/A"
 						} else {
 							person.FirstName = splits[0]
+							person.Initial = "N/A"
 						}
-
 						person.LastName = splits[1]
 					default:
+						person.Initial = "N/A"
 						person.FirstName = splits[0]
 						person.LastName = strings.Join(splits[1:], " ")
 					}
@@ -106,6 +115,7 @@ func main() {
 	}
 
 	r := csv.NewReader(csvfile)
+	//Set to -1 because every line can have different amuonts of fields
 	r.FieldsPerRecord = -1
 
 	records, err := r.ReadAll()

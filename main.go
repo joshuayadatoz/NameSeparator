@@ -24,22 +24,23 @@ func ParseName(name string) []Person {
 	// Check for multiple homeowners
 	for _, splitter := range nameSplitters {
 		if strings.Contains(name, splitter) {
-			singleName := strings.Split(name, splitter)
+			singleNames := strings.Split(name, splitter)
 			sharedSurname := ""
 			var tempPersons []Person
 			//Start from the end to catch the possible surname from n+1 person
-			for i := len(singleName) - 1; i >= 0; i-- {
+			for i := len(singleNames) - 1; i >= 0; i-- {
 				//Check if the first person has a lastname, if not assign the second person's last name
-				wordCountInName := len(strings.Split(singleName[i], " "))
+				wordCountInName := len(strings.Split(singleNames[i], " "))
 				if wordCountInName > 1 {
-					sharedSurname = strings.Split(singleName[i], " ")[wordCountInName-1]
+					sharedSurname = strings.Split(singleNames[i], " ")[wordCountInName-1]
 				} else {
-					singleName[i] = singleName[i] + " " + sharedSurname
+					singleNames[i] = singleNames[i] + " " + sharedSurname
 				}
-				tempPersons = append(persons, ParseName(strings.TrimSpace(singleName[i]))...) // Process each homeowner separately
+				tempPersons = append(tempPersons, ParseName(strings.TrimSpace(singleNames[i]))...) // Process each homeowner separately
 			}
+			//Fix the order of the names
 			for i := len(tempPersons) - 1; i >= 0; i-- {
-				persons = append(persons, tempPersons[i]) // Process each homeowner separately
+				persons = append(persons, tempPersons[i])
 			}
 
 			return persons
@@ -76,7 +77,13 @@ func ParseName(name string) []Person {
 					case 1:
 						person.LastName = splits[0]
 					case 2:
-						person.FirstName = splits[0]
+						//Check if the first element is one letter aka initial only
+						if len(splits[0]) == 1 {
+							person.Initial = splits[0]
+						} else {
+							person.FirstName = splits[0]
+						}
+
 						person.LastName = splits[1]
 					default:
 						person.FirstName = splits[0]

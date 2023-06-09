@@ -29,7 +29,9 @@ func ParseName(name string) []Person {
 			var tempPersons []Person
 			//Start from the end to catch the possible surname from the last person
 			for i := len(singleNames) - 1; i >= 0; i-- {
-				//Check if the first person has a lastname, if not assign the second person's last name
+				//Check if the first person has a lastname,
+				//if true, set sharedSurname
+				//if not assign the second person's last name to sharedSurname
 				wordCountInName := len(strings.Split(singleNames[i], " "))
 				if wordCountInName > 1 {
 					sharedSurname = strings.Split(singleNames[i], " ")[wordCountInName-1]
